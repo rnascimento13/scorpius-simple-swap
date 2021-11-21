@@ -1,4 +1,4 @@
-import { formatUnits, formatEther, parseEther } from "@ethersproject/units";
+import { formatUnits, formatEther, parseEther, parseUnits } from "@ethersproject/units";
 import { useWeb3React } from "@web3-react/core";
 import { BigNumber, ethers } from "ethers";
 import React, { useEffect, useState } from "react";
@@ -6,10 +6,13 @@ import { toast } from "react-hot-toast";
 import { useQuery } from "react-query";
 
 import ITManTokenArtifacts from "./artifacts/contracts/ITManToken.sol/ITManToken.json";
+import TBTCSArtifacts from "./artifacts/contracts/tbtcs.sol/TBTCS.json";
 import ITManTokenCrowdsaleArtifacts from "./artifacts/contracts/ITManTokenCrowdsale.sol/ITManTokenCrowdsale.json";
 import logger from "./logger";
 import { ITManToken } from "./types/ITManToken";
+import { TBTCS } from "./types/TBTCS";
 import { ITManTokenCrowdsale } from "./types/ITManTokenCrowdsale";
+import ProgressBar from "./components/progress-bar";
 
 interface Props {
   crowdsaleAddress: string;
@@ -29,7 +32,8 @@ const TokenInfo = ({ tokenAddress }: { tokenAddress: string }) => {
   const fetchTokenInfo = async () => {
     logger.warn("fetchTokenInfo");
     const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
-    const tokenContract = new ethers.Contract(tokenAddress, ITManTokenArtifacts.abi, provider) as ITManToken;
+    // const tokenContract = new ethers.Contract(tokenAddress, ITManTokenArtifacts.abi, provider) as ITManToken;
+    const tokenContract = new ethers.Contract(tokenAddress, TBTCSArtifacts.abi, provider) as TBTCS;
     const name = await tokenContract.name();
     const symbol = await tokenContract.symbol();
     const decimals = await tokenContract.decimals();
@@ -50,19 +54,20 @@ const TokenInfo = ({ tokenAddress }: { tokenAddress: string }) => {
   if (isLoading) return <div>loading...</div>;
 
   return (
-    <div className="flex flex-col">
+    // <div className="flex flex-col">
+    <div className="flex flex-col py-10">
+
       <button className="btn">
         {data?.name}
         <div className="ml-2 badge">{data?.symbol}</div>
-        <div className="ml-2 badge badge-info">{data?.decimals}</div>
       </button>
 
-      <div className="shadow stats">
+      {/* <div className="shadow stats">
         <div className="stat">
           <div className="stat-title">Total Supply</div>
-          <div className="stat-value">{formatUnits(data?.totalSupply ?? 0)}</div>
+          <div className="stat-value">{formatUnits(data?.totalSupply ?? 0, 9)}</div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -79,8 +84,10 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
   const [availableForSale, setAvailableForSale] = useState("0");
   const [price, setPrice] = useState("0");
   const [closingTime, setClosingTime] = useState("0");
-  const [amount, setAmount] = useState(1);
-
+  const [raised, setRaised] = useState("0");
+  const [amount, setAmount] = useState(400000);
+  const [balance, setBalance] = React.useState<number | null>();
+  
   // fetch crowdsale token info
   const fetchCrowdsaleTokenInfo = () => {
     logger.warn("fetchCrowdsaleTokenInfo");
@@ -98,11 +105,16 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
     contract
       .rate()
       .then((rate) => setPrice(BigNumber.from(rate).toString()))
+      // .then((rate) => setPrice(formatUnits(rate, 9)))
       .catch(logger.error);
     contract
-      .closingTime()
-      .then((time) => setClosingTime(BigNumber.from(time).toString()))
+      .weiRaised()
+      .then((raised) => setRaised(BigNumber.from(raised).toString()))
       .catch(logger.error);
+    // contract
+    //   .closingTime()
+    //   .then((time) => setClosingTime(BigNumber.from(time).toString()))
+    //   .catch(logger.error);
   };
   useEffect(() => {
     try {
@@ -112,8 +124,42 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
     }
   }, [library]);
 
+  React.useEffect((): any => {
+    if (!!account && !!library) {
+      let stale = false;
+
+      library
+        .getBalance(account)
+        .then((balance: any) => {
+          if (!stale) {
+            setBalance(balance);
+          }
+        })
+        .catch(() => {
+          if (!stale) {
+            setBalance(null);
+          }
+        });
+
+      return () => {
+        stale = true;
+        setBalance(undefined);
+      };
+    }
+  }, [account, library, chainId]); // ensures refresh if referential identity of library doesn't change across chainIds
+
+
   // buy token base on quantity
   const buyTokens = async () => {
+    // console.log("value: " + ethers.BigNumber.from(parseEther(String(1 / Number(price)))).mul(amount));
+    // console.log("value: " + String(Number(price) * Number(amount)));
+    // console.log("price: " + price);
+    // console.log("amount: " + amount);
+    // console.log("bnb: " + ethers.BigNumber.from(parseEther(String(1 / Number(price)))).mul(amount));
+    // console.log("bnb: " + ethers.BigNumber.from(parseUnits(String(1 / Number(price)), 12)).mul(amount));
+
+
+
     const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
     const signer = provider.getSigner();
     try {
@@ -123,7 +169,11 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
       }
       const txPrams = {
         to: crowdsaleAddress,
-        value: ethers.BigNumber.from(parseEther(String(1 / Number(price)))).mul(amount),
+        // value: ethers.BigNumber.from(formatUnits(Strin g(((1 / Number(price)) * amount) / 1000000), 9)),
+        // value: ethers.BigNumber.from(formatUnits(String(((1 / Number(price)) * amount) / 10000000), 9)),
+        value: ethers.BigNumber.from(parseUnits(String(1 / Number(price)), 12)).mul(amount),
+        // value: ethers.BigNumber.from(parseEther(String(1 / Number(price)))).mul(amount),
+
       };
       logger.warn({ txPrams });
       const transaction = await signer.sendTransaction(txPrams);
@@ -138,15 +188,41 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
         .wait()
         .then(() => fetchCrowdsaleTokenInfo())
         .catch(logger.error);
+      // console.log(receipt);
     } catch (error) {
       logger.error(error);
     }
   };
 
-  const totalCost = (1 / Number(price)) * amount;
+  const totalCost = ((1 / Number(price)) * amount) / 1000000;
+  
+  let warningMessage = "";
+  if (balance == null) {
+    warningMessage = "Please connect to BSC first";
+  } else if (balance == undefined) {
+    warningMessage = "Please connect to BSC first";
+  } else if (chainId !== 56) {
+    warningMessage = "Please connect to Binance Smart Chain";
+  } else if (Number(formatUnits(balance ?? 0, 18)) < 0.105 ) {
+    warningMessage = "You need more funds, Minimum 0.1 BNB";
+  } else if (Number(formatUnits(balance ?? 0, 18)) < totalCost) {
+    warningMessage = "You do not have enough BNB";
+  } else if (Number(formatUnits(balance ?? 0, 18)) > totalCost) {
+    warningMessage = "";
+  } else {
+    warningMessage = "Error";
+  }
+
+// console.log("balance: ", balance);
+// console.log("balance2: ", formatUnits(balance ?? 0, 18));
+  // const warningMessage = totalCost.toString() + " xx " + formatUnits(balance ?? 0, 18);
+
+  // const totalCost = formatUnits(String((1 / Number(price)) * amount), 9);
+  // formatUnits(price, 14)
+
   return (
     <div className="relative py-3 sm:max-w-5xl sm:mx-auto">
-      {chainId !== 3 && (
+      {chainId !== 56 && (
         <>
           <div className="alert">
             <div className="flex-1">
@@ -164,7 +240,7 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
                   d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
                 />
               </svg>
-              <label>Please connect to the Ropsten testnet for testing.</label>
+              <label>Please connect to the BSC.</label>
             </div>
           </div>
           <div className="divider"></div>
@@ -174,49 +250,36 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
       <div className="flex items-center w-full px-4 py-10 bg-cover card bg-base-200">
         <TokenInfo tokenAddress={tokenAddress} />
 
-        <div className="text-center shadow-2xl card">
-          <div className="card-body">
-            <h2 className="card-title">ITMan Token</h2>
-            {Number(closingTime) > 0 && (
-              <div className="alert">
-                <div className="flex-1">
-                  Closing time
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="#2196f3"
-                    className="w-6 h-6 mx-2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <label>{new Date(Number(closingTime) * 1000).toLocaleString()}</label>
-                </div>
-              </div>
-            )}
+        <div className="shadow stats">
+        <div className="stat">
+          <div className="stat-title">Total Raised</div>
+          <div className="stat-value">{formatUnits(raised ?? 0, 18)} / 50 BNB</div>
+         
+          <div className="stat-title">
+            <ProgressBar completed={(Number(formatUnits(raised ?? 0, 18)) * 2).toString().substr(0,4)} />
+          </div>
+        </div>
+      </div>
+
+        <div className="text-center card">
+        {/* <div className="card-body"> */}
+        <div className="card-body px-10" style={{width: "480px"}}>
+            <h2 className="card-title">Pre-Sale TBTcs Token</h2>
             <div className="shadow stats">
-              <div className="stat">
-                <div className="stat-title">Available for sale</div>
-                <div className="stat-value">{formatUnits(availableForSale, "ether")}</div>
+              <div className="stat px-1">
+                <div className="stat-title">Total</div>
+                <div className="stat-value">{totalCost} BNB</div>
               </div>
-              <div className="stat">
-                <div className="stat-title">Price</div>
-                <div className="stat-value">{formatUnits(price, "wei")} Wei</div>
-              </div>
-              <div className="stat">
+              <div className="stat px-1 border-none">
                 <div className="stat-title">Order Quantity</div>
                 <div className="stat-value">{amount}</div>
               </div>
             </div>
-
             <input
               type="range"
-              max="1000"
+              min="400000"
+              max="12000000"
+              step="40000"
               value={amount}
               onChange={(evt) => setAmount(evt.target.valueAsNumber)}
               className="range range-accent"
@@ -227,22 +290,25 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
                   Buy Now
                 </button>
               </div>
-              <div className="badge badge-md">Total: {totalCost} ETH</div>
+              <div style={{color: "red"}}>{warningMessage}</div>
+              {/* <div className="badge badge-md">Total: {totalCost} BNB</div> */}
             </div>
           </div>
         </div>
 
+
         <div className="divider"></div>
+
 
         <div className="items-center justify-center max-w-2xl px-4 py-4 mx-auto text-xl border-orange-500 lg:flex md:flex">
           <div className="p-2 font-semibold">
             <a
-              href={`https://ropsten.etherscan.io/address/${tokenAddress}`}
+              href={`https://bscscan.com/address/${tokenAddress}`}
               target="_blank"
-              className="px-4 py-1 ml-2 text-white bg-orange-500 rounded-full shadow focus:outline-none"
+              className="px-4 py-1 ml-2 bg-orange-500 rounded-full shadow focus:outline-none"
               rel="noreferrer"
             >
-              View Token on Etherscan
+              View Token on BSC
             </a>
           </div>
         </div>

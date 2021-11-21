@@ -29,10 +29,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
-      name: "AllowanceCrowdsale",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AllowanceCrowdsale__factory>;
-    getContractFactory(
       name: "Box",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Box__factory>;
@@ -40,10 +36,6 @@ declare module "hardhat/types/runtime" {
       name: "BoxV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BoxV2__factory>;
-    getContractFactory(
-      name: "Crowdsale",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Crowdsale__factory>;
     getContractFactory(
       name: "Greeter",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -57,9 +49,49 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ITManTokenCrowdsale__factory>;
     getContractFactory(
+      name: "AllowanceCrowdsale",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.AllowanceCrowdsale__factory>;
+    getContractFactory(
+      name: "CappedCrowdsale",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.CappedCrowdsale__factory>;
+    getContractFactory(
+      name: "Crowdsale",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Crowdsale__factory>;
+    getContractFactory(
       name: "TimedCrowdsale",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TimedCrowdsale__factory>;
+    getContractFactory(
+      name: "Auth",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Auth__factory>;
+    getContractFactory(
+      name: "DividendDistributor",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DividendDistributor__factory>;
+    getContractFactory(
+      name: "IBEP20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IBEP20__factory>;
+    getContractFactory(
+      name: "IDEXFactory",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IDEXFactory__factory>;
+    getContractFactory(
+      name: "IDEXRouter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IDEXRouter__factory>;
+    getContractFactory(
+      name: "IDividendDistributor",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IDividendDistributor__factory>;
+    getContractFactory(
+      name: "TBTCS",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TBTCS__factory>;
 
     getContractAt(
       name: "Ownable",
@@ -82,11 +114,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
     getContractAt(
-      name: "AllowanceCrowdsale",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AllowanceCrowdsale>;
-    getContractAt(
       name: "Box",
       address: string,
       signer?: ethers.Signer
@@ -96,11 +123,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.BoxV2>;
-    getContractAt(
-      name: "Crowdsale",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Crowdsale>;
     getContractAt(
       name: "Greeter",
       address: string,
@@ -117,10 +139,60 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ITManTokenCrowdsale>;
     getContractAt(
+      name: "AllowanceCrowdsale",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AllowanceCrowdsale>;
+    getContractAt(
+      name: "CappedCrowdsale",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CappedCrowdsale>;
+    getContractAt(
+      name: "Crowdsale",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Crowdsale>;
+    getContractAt(
       name: "TimedCrowdsale",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TimedCrowdsale>;
+    getContractAt(
+      name: "Auth",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Auth>;
+    getContractAt(
+      name: "DividendDistributor",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DividendDistributor>;
+    getContractAt(
+      name: "IBEP20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IBEP20>;
+    getContractAt(
+      name: "IDEXFactory",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IDEXFactory>;
+    getContractAt(
+      name: "IDEXRouter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IDEXRouter>;
+    getContractAt(
+      name: "IDividendDistributor",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IDividendDistributor>;
+    getContractAt(
+      name: "TBTCS",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TBTCS>;
 
     // default types
     getContractFactory(

@@ -1,7 +1,7 @@
 import { formatEther } from "@ethersproject/units";
 import { useWeb3React } from "@web3-react/core";
 import React from "react";
-// export var myBalance = null;
+export var myBalance = null;
 
 export function Balance() {
   const { account, library, chainId } = useWeb3React();
@@ -16,17 +16,21 @@ export function Balance() {
         .then((balance: any) => {
           if (!stale) {
             setBalance(balance);
+            myBalance=balance;
+            console.log(balance);
           }
         })
         .catch(() => {
           if (!stale) {
             setBalance(null);
+            myBalance=null;
           }
         });
 
       return () => {
         stale = true;
         setBalance(undefined);
+        myBalance=null;
       };
     }
   }, [account, library, chainId]); // ensures refresh if referential identity of library doesn't change across chainIds

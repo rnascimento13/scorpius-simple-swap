@@ -68,6 +68,9 @@
     "vite": "2.6.13",
     "vite-plugin-checker": "0.3.4"
   },
+  "resolutions": {
+    "@types/react": "17.0.34"
+  },
   "lint-staged": {
     "*.js": "eslint --cache --fix",
     "*.{js,css,md}": "prettier --write"

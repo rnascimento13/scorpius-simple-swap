@@ -207,6 +207,7 @@ contract Crowdsale is Context, ReentrancyGuard {
 	 */
 	function _updatePurchasingState(address beneficiary, uint256 weiAmount)
 		internal
+		virtual
 	{
 		// solhint-disable-previous-line no-empty-blocks
 	}
@@ -221,7 +222,7 @@ contract Crowdsale is Context, ReentrancyGuard {
 		view
 		returns (uint256)
 	{
-		return weiAmount * _rate;
+		return (weiAmount * _rate) / 1000;
 	}
 
 	/**

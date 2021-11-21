@@ -27,7 +27,31 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.4",
+  solidity: {
+    compilers: [
+      {
+        version: "0.5.0",
+      },
+      {
+        version: "0.7.6",
+      },
+      {
+        version: "0.8.0",
+      },
+      {
+        version: "0.8.4",
+      },
+      {
+        version: "0.8.9",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
+  },
   paths: {
     artifacts: "./src/artifacts",
   },
@@ -64,6 +88,11 @@ module.exports = {
     bsctestnet: {
       chainId: 97,
       url: process.env.BSC_PROVIDER_URL || "https://speedy-nodes-nyc.moralis.io/036063875a28828fa0c00596/bsc/testnet",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    bsc: {
+      chainId: 56,
+      url: "https://bsc-dataseed.binance.org",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
   },

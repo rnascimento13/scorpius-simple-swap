@@ -28,8 +28,14 @@ import {
 export interface ITManTokenCrowdsaleInterface extends ethers.utils.Interface {
   functions: {
     "buyTokens(address)": FunctionFragment;
+    "cap()": FunctionFragment;
+    "capReached()": FunctionFragment;
     "closingTime()": FunctionFragment;
+    "contributions(address)": FunctionFragment;
+    "crowdCap()": FunctionFragment;
     "hasClosed()": FunctionFragment;
+    "investorHardCap()": FunctionFragment;
+    "investorMinCap()": FunctionFragment;
     "isOpen()": FunctionFragment;
     "openingTime()": FunctionFragment;
     "rate()": FunctionFragment;
@@ -41,11 +47,29 @@ export interface ITManTokenCrowdsaleInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(functionFragment: "buyTokens", values: [string]): string;
+  encodeFunctionData(functionFragment: "cap", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "capReached",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "closingTime",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "contributions",
+    values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "crowdCap", values?: undefined): string;
   encodeFunctionData(functionFragment: "hasClosed", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "investorHardCap",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "investorMinCap",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "isOpen", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "openingTime",
@@ -65,11 +89,26 @@ export interface ITManTokenCrowdsaleInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "weiRaised", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "buyTokens", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "cap", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "capReached", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "closingTime",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "contributions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "crowdCap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasClosed", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "investorHardCap",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "investorMinCap",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "isOpen", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "openingTime",
@@ -149,9 +188,24 @@ export interface ITManTokenCrowdsale extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    cap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    capReached(overrides?: CallOverrides): Promise<[boolean]>;
+
     closingTime(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    contributions(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    crowdCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     hasClosed(overrides?: CallOverrides): Promise<[boolean]>;
+
+    investorHardCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    investorMinCap(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     isOpen(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -175,9 +229,21 @@ export interface ITManTokenCrowdsale extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  cap(overrides?: CallOverrides): Promise<BigNumber>;
+
+  capReached(overrides?: CallOverrides): Promise<boolean>;
+
   closingTime(overrides?: CallOverrides): Promise<BigNumber>;
 
+  contributions(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  crowdCap(overrides?: CallOverrides): Promise<BigNumber>;
+
   hasClosed(overrides?: CallOverrides): Promise<boolean>;
+
+  investorHardCap(overrides?: CallOverrides): Promise<BigNumber>;
+
+  investorMinCap(overrides?: CallOverrides): Promise<BigNumber>;
 
   isOpen(overrides?: CallOverrides): Promise<boolean>;
 
@@ -198,9 +264,21 @@ export interface ITManTokenCrowdsale extends BaseContract {
   callStatic: {
     buyTokens(beneficiary: string, overrides?: CallOverrides): Promise<void>;
 
+    cap(overrides?: CallOverrides): Promise<BigNumber>;
+
+    capReached(overrides?: CallOverrides): Promise<boolean>;
+
     closingTime(overrides?: CallOverrides): Promise<BigNumber>;
 
+    contributions(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    crowdCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     hasClosed(overrides?: CallOverrides): Promise<boolean>;
+
+    investorHardCap(overrides?: CallOverrides): Promise<BigNumber>;
+
+    investorMinCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     isOpen(overrides?: CallOverrides): Promise<boolean>;
 
@@ -249,9 +327,21 @@ export interface ITManTokenCrowdsale extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    cap(overrides?: CallOverrides): Promise<BigNumber>;
+
+    capReached(overrides?: CallOverrides): Promise<BigNumber>;
+
     closingTime(overrides?: CallOverrides): Promise<BigNumber>;
 
+    contributions(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    crowdCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     hasClosed(overrides?: CallOverrides): Promise<BigNumber>;
+
+    investorHardCap(overrides?: CallOverrides): Promise<BigNumber>;
+
+    investorMinCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     isOpen(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -276,9 +366,24 @@ export interface ITManTokenCrowdsale extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    cap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    capReached(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     closingTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    contributions(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    crowdCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     hasClosed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    investorHardCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    investorMinCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isOpen(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

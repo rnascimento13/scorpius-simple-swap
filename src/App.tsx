@@ -21,7 +21,7 @@ function App() {
           <ICOToken crowdsaleAddress={crowdsaleAddress} />
 
           <footer className="p-10 footer bg-base-200 text-base-content">
-            <div>
+            {/* <div>
               <p>
                 ProductsWay
                 <br />
@@ -64,11 +64,11 @@ function App() {
               >
                 <img src="https://vercel.com/button" alt="Deploy with Vercel" />
               </a>
-            </div>
+            </div> */}
           </footer>
         </div>
-        <ReactQueryDevtools initialIsOpen={false} />
-        <Toaster position="top-right" />
+        {/* <ReactQueryDevtools initialIsOpen={false} />
+        <Toaster position="top-right" /> */}
       </QueryClientProvider>
     </Web3ReactProvider>
   );
