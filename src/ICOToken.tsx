@@ -13,6 +13,7 @@ import { ITManToken } from "./types/ITManToken";
 import { TBTCS } from "./types/TBTCS";
 import { ITManTokenCrowdsale } from "./types/ITManTokenCrowdsale";
 import ProgressBar from "./components/progress-bar";
+import logo1 from "./assets/logo1.png";
 
 interface Props {
   crowdsaleAddress: string;
@@ -55,7 +56,7 @@ const TokenInfo = ({ tokenAddress }: { tokenAddress: string }) => {
 
   return (
     // <div className="flex flex-col">
-    <div className="flex flex-col py-10">
+    <div className="flex flex-col pt-10">
 
       <button className="btn">
         {data?.name}
@@ -86,7 +87,10 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
   const [closingTime, setClosingTime] = useState("0");
   const [raised, setRaised] = useState("0");
   const [amount, setAmount] = useState(400000);
-  const [balance, setBalance] = React.useState<number | null>();
+  const [balance, setBalance] = useState<number| null>();
+  const [disabled, setDisabled] = useState(false);
+  const [warningMessage, setWarningMessage] = useState("");
+  const [isConnected, setIsConnected] = useState(false);
   
   // fetch crowdsale token info
   const fetchCrowdsaleTokenInfo = () => {
@@ -133,17 +137,20 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
         .then((balance: any) => {
           if (!stale) {
             setBalance(balance);
+            setIsConnected(true);
           }
         })
         .catch(() => {
           if (!stale) {
             setBalance(null);
+            setIsConnected(false);
           }
         });
 
       return () => {
         stale = true;
         setBalance(undefined);
+        setIsConnected(false);
       };
     }
   }, [account, library, chainId]); // ensures refresh if referential identity of library doesn't change across chainIds
@@ -191,27 +198,47 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
       // console.log(receipt);
     } catch (error) {
       logger.error(error);
+      if ((error as {message: String}).message.search("User denied transaction signature")) {
+        toast.error('Error: User denied transaction');
+      }
+      // console.log('error: ', (error as {message: String}).message)
+      // console.log('error: ', (error as {code: String}).code)
+      // console.log('error: ', (error as {data: {message: String}}).data.message)
+
     }
   };
 
   const totalCost = ((1 / Number(price)) * amount) / 1000000;
   
-  let warningMessage = "";
+React.useEffect((): any => {
+  let _warningMessage;
   if (balance == null) {
-    warningMessage = "Please connect to BSC first";
+    _warningMessage = "Please connect to BSC first";
   } else if (balance == undefined) {
-    warningMessage = "Please connect to BSC first";
+    _warningMessage = "Please connect to BSC first";
   } else if (chainId !== 56) {
-    warningMessage = "Please connect to Binance Smart Chain";
+    _warningMessage = "Please connect to Binance Smart Chain";
   } else if (Number(formatUnits(balance ?? 0, 18)) < 0.105 ) {
-    warningMessage = "You need more funds, Minimum 0.1 BNB";
+    _warningMessage = "You need more funds, Minimum 0.1 BNB";
   } else if (Number(formatUnits(balance ?? 0, 18)) < totalCost) {
-    warningMessage = "You do not have enough BNB";
+    _warningMessage = "You do not have enough BNB";
   } else if (Number(formatUnits(balance ?? 0, 18)) > totalCost) {
-    warningMessage = "";
+    _warningMessage = "";
   } else {
-    warningMessage = "Error";
+    _warningMessage = "Error";
   }
+  if (_warningMessage == warningMessage) return
+    setWarningMessage(_warningMessage);
+  if (_warningMessage == "") setDisabled(false);
+  else setDisabled(true);
+  // console.log("change")
+  // toast("Wow so easy!");
+}, [balance, chainId, totalCost]);
+
+
+
+  // let disableButtom = false;
+
 
 // console.log("balance: ", balance);
 // console.log("balance2: ", formatUnits(balance ?? 0, 18));
@@ -240,17 +267,24 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
                   d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
                 />
               </svg>
-              <label>Please connect to the BSC.</label>
+              {isConnected && (
+                <label>Wrong Chain, please connect to the Binance Smart Chain.</label>
+              )}
+              {!isConnected && (
+                <label>Please connect to the BSC.</label>
+              )}
             </div>
           </div>
           <div className="divider"></div>
         </>
       )}
+      
 
-      <div className="flex items-center w-full px-4 py-10 bg-cover card bg-base-200">
-        <TokenInfo tokenAddress={tokenAddress} />
+      <div className="flex items-center w-full px-4 py-0 bg-cover card bg-base-200">
+      <TokenInfo tokenAddress={tokenAddress} />
+      <img className="stats py-5" src={logo1} alt="Logo" />
 
-        <div className="shadow stats">
+      <div className="shadow stats">
         <div className="stat">
           <div className="stat-title">Total Raised</div>
           <div className="stat-value">{formatUnits(raised ?? 0, 18)} / 50 BNB</div>
@@ -286,7 +320,7 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
             />
             <div>
               <div className="justify-center card-actions">
-                <button onClick={buyTokens} type="button" className="btn btn-outline btn-accent">
+                <button onClick={buyTokens} disabled={disabled} type="button" className="btn btn-outline btn-accent">
                   Buy Now
                 </button>
               </div>

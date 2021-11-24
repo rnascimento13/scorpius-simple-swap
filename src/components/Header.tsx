@@ -3,7 +3,7 @@ import React from "react";
 
 import { Account } from "./Account";
 import { Balance } from "./Balance";
-import { ChainId } from "./ChainId";
+// import { ChainId } from "./ChainId";
 
 type Props = {
   children: React.ReactNode;
@@ -20,7 +20,7 @@ export function Header({ children }: Props) {
       </div>
       <div className="flex-none hidden px-2 mx-2 lg:flex">
         <div className="flex items-stretch">
-          <ChainId />
+          {/* <ChainId /> */}
           <Account />
           <Balance />
         </div>

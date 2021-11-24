@@ -67,8 +67,8 @@ function App() {
             </div> */}
           </footer>
         </div>
-        {/* <ReactQueryDevtools initialIsOpen={false} />
-        <Toaster position="top-right" /> */}
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+        <Toaster position="top-right" />
       </QueryClientProvider>
     </Web3ReactProvider>
   );

@@ -68,23 +68,23 @@ export default function Demo() {
         >
           <div>
             {activating && <p className="btn loading">loading...</p>}
-            {connected && (
-              <span role="img" aria-label="check">
-                ✅
+            {!connected && (
+              <span>
+                Connect with MetaMask
               </span>
             )}
           </div>
-          Connect with MetaMask
+          {/* Connect with MetaMask */}
         </button>
         <div>
           {(active || error) && (
             <button
-              className="btn btn-secondary"
+              className="btn btn-secondary bg-gray-500 hover:bg-gray-600 border-black hover:border-black"
               onClick={() => {
                 deactivate();
               }}
             >
-              Deactivate
+              Disconnect
             </button>
           )}
 

@@ -6,10 +6,10 @@ export function Account() {
 
   return (
     <div className="btn btn-ghost btn-sm rounded-btn">
-      <span>Account</span>
-      <span role="img" aria-label="robot">
+      <span>Account: </span>
+      {/* <span role="img" aria-label="robot">
         🤖
-      </span>
+      </span> */}
       <span>
         {account === null
           ? "-"
