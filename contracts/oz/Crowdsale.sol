@@ -222,7 +222,7 @@ contract Crowdsale is Context, ReentrancyGuard {
 		view
 		returns (uint256)
 	{
-		return (weiAmount * _rate) / 1000;
+		return (weiAmount * _rate) / 10000000;
 	}
 
 	/**

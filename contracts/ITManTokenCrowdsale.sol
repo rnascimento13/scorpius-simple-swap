@@ -12,9 +12,9 @@ contract ITManTokenCrowdsale is AllowanceCrowdsale, TimedCrowdsale, CappedCrowds
     using SafeMath for uint256;
 
 	// Track investor contributions
-  	uint256 public investorMinCap = 50000000000000000; // 0.05 ether
+  	uint256 public investorMinCap = 100000000000000000; // 0.1 ether
   	uint256 public investorHardCap = 3000000000000000000; // 3 ether
-	uint256 public crowdCap = 50000000000000000000; // 50 ether
+	uint256 public crowdCap = 131000000000000000000; // 131 ether
   	mapping(address => uint256) public contributions;
 
 	constructor(

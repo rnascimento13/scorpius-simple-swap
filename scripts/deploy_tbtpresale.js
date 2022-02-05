@@ -10,19 +10,21 @@ const { ethers } = require("hardhat");
 
 async function main() {
   // deploy crowdsale contract
-  const tokenAddress = "0xDE28EF00141D488dAEf5abCA20A6e7e3B855Df3F";
-  const tokenWallet = "0x560367f3ace284578F3DBA7215f121C1889D5Df7";
+  const payAddress = "0xacff9441993604382274Eb7ac778b0e8EB29A490";
+  const tokenAddress = "0x4cc95976745dc118a10111f289e2485aca031ff8";
+  const tokenWallet = "0x88Bea2Ef691A63b94ea0C4A751a7Bbf4dC1C23c6";
   console.log("token: ", tokenAddress);
   const ITManTokenCrowdsale = await ethers.getContractFactory("ITManTokenCrowdsale");
-  const rate = 4; // 500 wei per token
+  const rate = 1733; // 500 wei per token
+  // const rate = 1; // 500 wei per token
   // const latestBlockTime = await latestTime();
-  const openingTime = 1637010000;
-  const closeTime = 1668535200
+  const openingTime = 1643587200;
+  const closeTime = 1644026400;
   console.log("openingTime", openingTime);
   console.log("closeTime", closeTime);
   const itManTokenCrowdsale = await ITManTokenCrowdsale.deploy(
     rate,
-    tokenWallet,
+    payAddress,
     tokenAddress,
     tokenWallet,
     openingTime,
@@ -32,7 +34,6 @@ async function main() {
 
   await itManTokenCrowdsale.deployed();
   console.log("TokenCrowdsale deployed to: ", itManTokenCrowdsale.address);
-
 }
 
 // We recommend this pattern to be able to use async/await everywhere

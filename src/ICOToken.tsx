@@ -33,6 +33,7 @@ const TokenInfo = ({ tokenAddress }: { tokenAddress: string }) => {
   const fetchTokenInfo = async () => {
     logger.warn("fetchTokenInfo");
     const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
+    
     // const tokenContract = new ethers.Contract(tokenAddress, ITManTokenArtifacts.abi, provider) as ITManToken;
     const tokenContract = new ethers.Contract(tokenAddress, TBTCSArtifacts.abi, provider) as TBTCS;
     const name = await tokenContract.name();
@@ -86,7 +87,7 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
   const [price, setPrice] = useState("0");
   const [closingTime, setClosingTime] = useState("0");
   const [raised, setRaised] = useState("0");
-  const [amount, setAmount] = useState(400000);
+  const [amount, setAmount] = useState(17330);
   const [balance, setBalance] = useState<number| null>();
   const [disabled, setDisabled] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
@@ -174,11 +175,21 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
         await requestAccount();
         return;
       }
+      console.log(ethers.utils.formatEther(ethers.utils.parseEther('0.1')));
+      console.log(ethers.utils.formatEther(ethers.BigNumber.from(parseUnits(String(((1 / Number(price)) * amount)), 18))));
+      console.log(ethers.BigNumber.from(parseUnits(String(Number(amount) / Number(price)), 15)));
+      console.log(ethers.utils.formatEther(ethers.BigNumber.from(parseUnits(String(Number(amount) / Number(price)), 18))));
+
+      
+
       const txPrams = {
         to: crowdsaleAddress,
         // value: ethers.BigNumber.from(formatUnits(Strin g(((1 / Number(price)) * amount) / 1000000), 9)),
         // value: ethers.BigNumber.from(formatUnits(String(((1 / Number(price)) * amount) / 10000000), 9)),
-        value: ethers.BigNumber.from(parseUnits(String(1 / Number(price)), 12)).mul(amount),
+        // value: ethers.BigNumber.from(parseUnits(String(1 / Number(price)), 9)).mul(amount),
+        // value: ethers.BigNumber.from(parseUnits(String(Number(0.1)), 18)),
+        value: ethers.BigNumber.from(parseUnits(String(Number(amount) / Number(price) / 100 ), 18)),
+        // value: ethers.BigNumber.from(parseUnits(String(((1 / Number(price)) * amount)))),
         // value: ethers.BigNumber.from(parseEther(String(1 / Number(price)))).mul(amount),
 
       };
@@ -198,9 +209,9 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
       // console.log(receipt);
     } catch (error) {
       logger.error(error);
-      if ((error as {message: String}).message.search("User denied transaction signature")) {
-        toast.error('Error: User denied transaction');
-      }
+      // if ((error as {message: String}).message.search("User denied transaction signature")) {
+      //   toast.error('Error: User denied transaction');
+      // }
       // console.log('error: ', (error as {message: String}).message)
       // console.log('error: ', (error as {code: String}).code)
       // console.log('error: ', (error as {data: {message: String}}).data.message)
@@ -208,7 +219,10 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
     }
   };
 
-  const totalCost = ((1 / Number(price)) * amount) / 1000000;
+  // const totalCost = ((1 / Number(price)) * amount) / 1000000;
+  const totalCost = ((amount / Number(price)) / 100 );
+  console.log('price: '+price+ ' amount: '+amount);
+  console.log('totalcost: '+totalCost);
   
 React.useEffect((): any => {
   let _warningMessage;
@@ -282,12 +296,12 @@ React.useEffect((): any => {
 
       <div className="flex items-center w-full px-4 py-0 bg-cover card bg-base-200">
       <TokenInfo tokenAddress={tokenAddress} />
-      <img className="stats py-5" src={logo1} alt="Logo" />
+      <img className="stats py-5" style={{width: "480px"}} src={logo1} alt="Logo" />
 
       <div className="shadow stats">
         <div className="stat">
           <div className="stat-title">Total Raised</div>
-          <div className="stat-value">{formatUnits(raised ?? 0, 18)} / 50 BNB</div>
+          <div className="stat-value">{formatUnits(raised ?? 0, 18)} / 131 BNB</div>
          
           <div className="stat-title">
             <ProgressBar completed={(Number(formatUnits(raised ?? 0, 18)) * 2).toString().substr(0,4)} />
@@ -298,7 +312,7 @@ React.useEffect((): any => {
         <div className="text-center card">
         {/* <div className="card-body"> */}
         <div className="card-body px-10" style={{width: "480px"}}>
-            <h2 className="card-title">Pre-Sale TBTcs Token</h2>
+            <h2 className="card-title">Pre-Sale MetaSwap Token</h2>
             <div className="shadow stats">
               <div className="stat px-1">
                 <div className="stat-title">Total</div>
@@ -311,9 +325,12 @@ React.useEffect((): any => {
             </div>
             <input
               type="range"
-              min="400000"
-              max="12000000"
-              step="40000"
+              // min="400000"
+              // max="12000000"
+              // step="40000"
+              min="17330"
+              max="519900"
+              step="1733"
               value={amount}
               onChange={(evt) => setAmount(evt.target.valueAsNumber)}
               className="range range-accent"
