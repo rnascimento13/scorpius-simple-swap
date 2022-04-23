@@ -17,7 +17,10 @@ module.exports = {
     },
     {
       files: ["hardhat.config.js", "scripts/**", "test/**"],
-      rules: { "node/no-unpublished-require": "off" },
+      rules: {
+        "node/no-unpublished-require": "off",
+        "no-console": "off",
+      },
     },
   ],
 };

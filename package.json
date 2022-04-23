@@ -1,6 +1,11 @@
 {
   "name": "dapp-starter",
   "version": "0.0.1",
+  "engines": {
+    "node": ">=10.4.0"
+  },
+
+
   "scripts": {
     "dev": "vite",
     "build": "npx hardhat compile --network localhost && tsc && vite build",
@@ -16,6 +21,7 @@
     "@web3-react/network-connector": "6.1.9",
     "@web3-react/walletconnect-connector": "6.2.8",
     "daisyui": "1.16.1",
+    "hardhat": "2.6.8",
     "loglevel": "1.7.1",
     "react": "17.0.2",
     "react-dom": "17.0.2",
@@ -52,7 +58,6 @@
     "eslint-plugin-react-hooks": "4.2.0",
     "ethereum-waffle": "3.4.0",
     "ethers": "5.5.1",
-    "hardhat": "2.6.8",
     "hardhat-gas-reporter": "1.0.4",
     "husky": "7.0.4",
     "lint-staged": "11.2.6",
