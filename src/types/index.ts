@@ -23,6 +23,7 @@ export type { TBTCS } from "./TBTCS";
 export type { TokenA } from "./TokenA";
 export type { TokenB } from "./TokenB";
 export type { TokenCrowdsale } from "./TokenCrowdsale";
+export type { TokenSwap } from "./TokenSwap";
 
 export { Ownable__factory } from "./factories/Ownable__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
@@ -46,3 +47,4 @@ export { TBTCS__factory } from "./factories/TBTCS__factory";
 export { TokenA__factory } from "./factories/TokenA__factory";
 export { TokenB__factory } from "./factories/TokenB__factory";
 export { TokenCrowdsale__factory } from "./factories/TokenCrowdsale__factory";
+export { TokenSwap__factory } from "./factories/TokenSwap__factory";

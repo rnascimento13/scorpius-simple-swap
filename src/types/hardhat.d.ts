@@ -104,6 +104,14 @@ declare module "hardhat/types/runtime" {
       name: "TokenCrowdsale",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TokenCrowdsale__factory>;
+    getContractFactory(
+      name: "IERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20__factory>;
+    getContractFactory(
+      name: "TokenSwap",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TokenSwap__factory>;
 
     getContractAt(
       name: "Ownable",
@@ -220,6 +228,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TokenCrowdsale>;
+    getContractAt(
+      name: "IERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20>;
+    getContractAt(
+      name: "TokenSwap",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TokenSwap>;
 
     // default types
     getContractFactory(
