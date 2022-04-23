@@ -270,7 +270,6 @@ React.useEffect((): any => {
         <div className="stat">
           <div className="stat-title">Total Raised</div>
           <div className="stat-value">{formatUnits(raised ?? 0, 18)} / 300 BNB</div>
-         
           <div className="stat-title">
             <ProgressBar completed={(Number(formatUnits(raised ?? 0, 18)) /300 *100).toString().substr(0,4)} />
           </div>
