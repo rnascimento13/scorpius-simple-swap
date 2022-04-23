@@ -4,8 +4,6 @@
   "engines": {
     "node": ">=10.4.0"
   },
-
-
   "scripts": {
     "dev": "vite",
     "build": "npx hardhat compile --network localhost && tsc && vite build",

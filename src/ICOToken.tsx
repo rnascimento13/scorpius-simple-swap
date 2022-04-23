@@ -53,7 +53,6 @@ const TokenInfo = ({ tokenAddress }: { tokenAddress: string }) => {
   if (isLoading) return <div>loading...</div>;
 
   return (
-    // <div className="flex flex-col">
     <div className="flex flex-col pt-10">
 
       <button className="btn">
