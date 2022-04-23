@@ -45,10 +45,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ITManToken__factory>;
     getContractFactory(
-      name: "ITManTokenCrowdsale",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ITManTokenCrowdsale__factory>;
-    getContractFactory(
       name: "AllowanceCrowdsale",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AllowanceCrowdsale__factory>;
@@ -60,6 +56,10 @@ declare module "hardhat/types/runtime" {
       name: "Crowdsale",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Crowdsale__factory>;
+    getContractFactory(
+      name: "IERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
       name: "TimedCrowdsale",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -92,6 +92,18 @@ declare module "hardhat/types/runtime" {
       name: "TBTCS",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TBTCS__factory>;
+    getContractFactory(
+      name: "TokenA",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TokenA__factory>;
+    getContractFactory(
+      name: "TokenB",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TokenB__factory>;
+    getContractFactory(
+      name: "TokenCrowdsale",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TokenCrowdsale__factory>;
 
     getContractAt(
       name: "Ownable",
@@ -134,11 +146,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ITManToken>;
     getContractAt(
-      name: "ITManTokenCrowdsale",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ITManTokenCrowdsale>;
-    getContractAt(
       name: "AllowanceCrowdsale",
       address: string,
       signer?: ethers.Signer
@@ -153,6 +160,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Crowdsale>;
+    getContractAt(
+      name: "IERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20>;
     getContractAt(
       name: "TimedCrowdsale",
       address: string,
@@ -193,6 +205,21 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TBTCS>;
+    getContractAt(
+      name: "TokenA",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TokenA>;
+    getContractAt(
+      name: "TokenB",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TokenB>;
+    getContractAt(
+      name: "TokenCrowdsale",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TokenCrowdsale>;
 
     // default types
     getContractFactory(

@@ -5,15 +5,13 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useQuery } from "react-query";
 
-import ITManTokenArtifacts from "./artifacts/contracts/ITManToken.sol/ITManToken.json";
-import TBTCSArtifacts from "./artifacts/contracts/tbtcs.sol/TBTCS.json";
-import ITManTokenCrowdsaleArtifacts from "./artifacts/contracts/ITManTokenCrowdsale.sol/ITManTokenCrowdsale.json";
+import TokenCrowdsaleArtifacts from "./artifacts/contracts/TokenCrowdsale.sol/TokenCrowdsale.json";
+import IERC20Artifacts from "./artifacts/contracts/oz/IERC20.sol/IERC20.json";
+import { TokenCrowdsale } from "./types/TokenCrowdsale";
+import { IERC20 } from "./types/IERC20";
 import logger from "./logger";
-import { ITManToken } from "./types/ITManToken";
-import { TBTCS } from "./types/TBTCS";
-import { ITManTokenCrowdsale } from "./types/ITManTokenCrowdsale";
 import ProgressBar from "./components/progress-bar";
-import logo1 from "./assets/logo1.png";
+import logo1 from "./assets/logo1.gif";
 
 interface Props {
   crowdsaleAddress: string;
@@ -31,16 +29,15 @@ const TokenInfo = ({ tokenAddress }: { tokenAddress: string }) => {
   const { library } = useWeb3React();
 
   const fetchTokenInfo = async () => {
-    logger.warn("fetchTokenInfo");
+    // logger.warn("fetchTokenInfo");
     const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
-    
-    // const tokenContract = new ethers.Contract(tokenAddress, ITManTokenArtifacts.abi, provider) as ITManToken;
-    const tokenContract = new ethers.Contract(tokenAddress, TBTCSArtifacts.abi, provider) as TBTCS;
+    const tokenContract = new ethers.Contract(tokenAddress, IERC20Artifacts.abi, provider) as IERC20;
+    // const tokenContract = new ethers.Contract(tokenAddress, IERC20Artifacts.abi, provider);
     const name = await tokenContract.name();
     const symbol = await tokenContract.symbol();
     const decimals = await tokenContract.decimals();
     const totalSupply = await tokenContract.totalSupply();
-    logger.warn("token info", { name, symbol, decimals });
+    // logger.warn("token info", { name, symbol, decimals });
     return {
       name,
       symbol,
@@ -85,9 +82,10 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
   const [tokenAddress, setTokenAddress] = useState("");
   const [availableForSale, setAvailableForSale] = useState("0");
   const [price, setPrice] = useState("0");
-  const [closingTime, setClosingTime] = useState("0");
+  const [startTime, setStartTime] = useState("0");
+  const [closeTime, setCloseTime] = useState("0");
   const [raised, setRaised] = useState("0");
-  const [amount, setAmount] = useState(17330);
+  const [amount, setAmount] = useState(50000);
   const [balance, setBalance] = useState<number| null>();
   const [disabled, setDisabled] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
@@ -95,13 +93,13 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
   
   // fetch crowdsale token info
   const fetchCrowdsaleTokenInfo = () => {
-    logger.warn("fetchCrowdsaleTokenInfo");
+    // logger.warn("fetchCrowdsaleTokenInfo");
     const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
     const contract = new ethers.Contract(
       crowdsaleAddress,
-      ITManTokenCrowdsaleArtifacts.abi,
+      TokenCrowdsaleArtifacts.abi,
       provider
-    ) as ITManTokenCrowdsale;
+    ) as TokenCrowdsale
     contract.token().then(setTokenAddress).catch(logger.error);
     contract
       .remainingTokens()
@@ -116,11 +114,16 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
       .weiRaised()
       .then((raised) => setRaised(BigNumber.from(raised).toString()))
       .catch(logger.error);
-    // contract
-    //   .closingTime()
-    //   .then((time) => setClosingTime(BigNumber.from(time).toString()))
-    //   .catch(logger.error);
-  };
+    contract
+      .closingTime()
+      .then((time) => setCloseTime(BigNumber.from(time).toString()))
+      .catch(logger.error);
+    contract
+      .openingTime()
+      .then((time) => setStartTime(BigNumber.from(time).toString()))
+      .catch(logger.error);
+
+    };
   useEffect(() => {
     try {
       fetchCrowdsaleTokenInfo();
@@ -159,15 +162,6 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
 
   // buy token base on quantity
   const buyTokens = async () => {
-    // console.log("value: " + ethers.BigNumber.from(parseEther(String(1 / Number(price)))).mul(amount));
-    // console.log("value: " + String(Number(price) * Number(amount)));
-    // console.log("price: " + price);
-    // console.log("amount: " + amount);
-    // console.log("bnb: " + ethers.BigNumber.from(parseEther(String(1 / Number(price)))).mul(amount));
-    // console.log("bnb: " + ethers.BigNumber.from(parseUnits(String(1 / Number(price)), 12)).mul(amount));
-
-
-
     const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
     const signer = provider.getSigner();
     try {
@@ -175,23 +169,9 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
         await requestAccount();
         return;
       }
-      console.log(ethers.utils.formatEther(ethers.utils.parseEther('0.1')));
-      console.log(ethers.utils.formatEther(ethers.BigNumber.from(parseUnits(String(((1 / Number(price)) * amount)), 18))));
-      console.log(ethers.BigNumber.from(parseUnits(String(Number(amount) / Number(price)), 15)));
-      console.log(ethers.utils.formatEther(ethers.BigNumber.from(parseUnits(String(Number(amount) / Number(price)), 18))));
-
-      
-
       const txPrams = {
         to: crowdsaleAddress,
-        // value: ethers.BigNumber.from(formatUnits(Strin g(((1 / Number(price)) * amount) / 1000000), 9)),
-        // value: ethers.BigNumber.from(formatUnits(String(((1 / Number(price)) * amount) / 10000000), 9)),
-        // value: ethers.BigNumber.from(parseUnits(String(1 / Number(price)), 9)).mul(amount),
-        // value: ethers.BigNumber.from(parseUnits(String(Number(0.1)), 18)),
         value: ethers.BigNumber.from(parseUnits(String(Number(amount) / Number(price) / 100 ), 18)),
-        // value: ethers.BigNumber.from(parseUnits(String(((1 / Number(price)) * amount)))),
-        // value: ethers.BigNumber.from(parseEther(String(1 / Number(price)))).mul(amount),
-
       };
       logger.warn({ txPrams });
       const transaction = await signer.sendTransaction(txPrams);
@@ -221,8 +201,8 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
 
   // const totalCost = ((1 / Number(price)) * amount) / 1000000;
   const totalCost = ((amount / Number(price)) / 100 );
-  console.log('price: '+price+ ' amount: '+amount);
-  console.log('totalcost: '+totalCost);
+  // console.log('price: '+price+ ' amount: '+amount);
+  // console.log('totalcost: '+totalCost);
   
 React.useEffect((): any => {
   let _warningMessage;
@@ -232,8 +212,8 @@ React.useEffect((): any => {
     _warningMessage = "Please connect to BSC first";
   } else if (chainId !== 56) {
     _warningMessage = "Please connect to Binance Smart Chain";
-  } else if (Number(formatUnits(balance ?? 0, 18)) < 0.105 ) {
-    _warningMessage = "You need more funds, Minimum 0.1 BNB";
+  } else if (Number(formatUnits(balance ?? 0, 18)) < 0.05 ) {
+    _warningMessage = "You need more funds, Minimum 0.05 BNB";
   } else if (Number(formatUnits(balance ?? 0, 18)) < totalCost) {
     _warningMessage = "You do not have enough BNB";
   } else if (Number(formatUnits(balance ?? 0, 18)) > totalCost) {
@@ -248,18 +228,6 @@ React.useEffect((): any => {
   // console.log("change")
   // toast("Wow so easy!");
 }, [balance, chainId, totalCost]);
-
-
-
-  // let disableButtom = false;
-
-
-// console.log("balance: ", balance);
-// console.log("balance2: ", formatUnits(balance ?? 0, 18));
-  // const warningMessage = totalCost.toString() + " xx " + formatUnits(balance ?? 0, 18);
-
-  // const totalCost = formatUnits(String((1 / Number(price)) * amount), 9);
-  // formatUnits(price, 14)
 
   return (
     <div className="relative py-3 sm:max-w-5xl sm:mx-auto">
@@ -301,10 +269,10 @@ React.useEffect((): any => {
       <div className="shadow stats">
         <div className="stat">
           <div className="stat-title">Total Raised</div>
-          <div className="stat-value">{formatUnits(raised ?? 0, 18)} / 131 BNB</div>
+          <div className="stat-value">{formatUnits(raised ?? 0, 18)} / 300 BNB</div>
          
           <div className="stat-title">
-            <ProgressBar completed={(Number(formatUnits(raised ?? 0, 18)) * 2).toString().substr(0,4)} />
+            <ProgressBar completed={(Number(formatUnits(raised ?? 0, 18)) /300 *100).toString().substr(0,4)} />
           </div>
         </div>
       </div>
@@ -312,7 +280,7 @@ React.useEffect((): any => {
         <div className="text-center card">
         {/* <div className="card-body"> */}
         <div className="card-body px-10" style={{width: "480px"}}>
-            <h2 className="card-title">Pre-Sale MetaSwap Token</h2>
+            <h2 className="card-title">Pre-Sale Charity Tokens</h2>
             <div className="shadow stats">
               <div className="stat px-1">
                 <div className="stat-title">Total</div>
@@ -328,9 +296,9 @@ React.useEffect((): any => {
               // min="400000"
               // max="12000000"
               // step="40000"
-              min="17330"
-              max="519900"
-              step="1733"
+              min="50000"
+              max="4000000"
+              step="50000"
               value={amount}
               onChange={(evt) => setAmount(evt.target.valueAsNumber)}
               className="range range-accent"
@@ -348,8 +316,58 @@ React.useEffect((): any => {
         </div>
 
 
-        <div className="divider"></div>
+        <div className="text-center shadow-2xl card">
+          <div className="card-body">
+            {/* <h2 className="card-title">Token</h2> */}
+            {Number(startTime) > 0 && (
+              <div className="alert">
+                <div className="flex-1">
+                  Starting time
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="#2196f3"
+                    className="w-6 h-6 mx-2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <label>{new Date(Number(startTime) * 1000).toLocaleString()}</label>
+                </div>
+              </div>
+            )}
+            <div className="py-2"></div>
+            {Number(closeTime) > 0 && (
+              <div className="alert">
+                <div className="flex-1">
+                  Closing time
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="#2196f3"
+                    className="w-6 h-6 mx-2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <label>{new Date(Number(closeTime) * 1000).toLocaleString()}</label>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
+        <div className="divider"></div>
 
         <div className="items-center justify-center max-w-2xl px-4 py-4 mx-auto text-xl border-orange-500 lg:flex md:flex">
           <div className="p-2 font-semibold">

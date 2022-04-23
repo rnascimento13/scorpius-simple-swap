@@ -27,8 +27,10 @@ const ProgressBar = (props: Props) => {
   }
 
   const labelStyles = {
-    padding: 0,
-    color: 'white',
+    // paddingTop: 1,
+    paddingBottom: 2,
+    paddingLeft:2,
+    color: '#132020',
     fontWeight: 'bold',
     display: 'ruby-text',
     fontSize: '15px',
