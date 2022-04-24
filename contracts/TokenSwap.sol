@@ -22,7 +22,9 @@ interface IERC20 {
 contract TokenSwap {
     using SafeMath for uint256;
 
-    uint256 public ratioIO = 1;
+    uint256 public ratioIn = 1; // less ratio IO, use it to deliver less tokens
+    uint256 public ratioOut = 1; // more ratio IO, use it to deliver more tokens
+
     IERC20 public tokenIn;
     IERC20 public tokenOut;
 	address public tokenWallet;
@@ -43,14 +45,14 @@ contract TokenSwap {
         require(amountIn > 0, "amountIn can't be zero");
         require(tokenIn.balanceOf(msg.sender) >= amountIn, "no tokenIn balance");
 
-        uint256 exchangeA = uint256(mul(amountIn, ratioIO));
+        uint256 exchangeA = uint256(mul(amountIn, ratioOut) / ratioIn);
         
         uint256 tokenInDecimals = tokenIn.decimals();
         uint256 tokenOutDecimals = tokenOut.decimals();
 
         uint256 amountOut = (tokenInDecimals > tokenOutDecimals) 
-            ? exchangeA / 10**(tokenIn.decimals()-tokenOut.decimals())
-            : exchangeA * 10**(tokenOut.decimals()-tokenIn.decimals());
+            ? exchangeA / 10**(tokenInDecimals-tokenOutDecimals)
+            : exchangeA * 10**(tokenOutDecimals-tokenInDecimals);
 
         require(amountOut > 0, "must be greater then zero");
         require(tokenOut.balanceOf(tokenWallet) > amountOut, "out of tokenOut");

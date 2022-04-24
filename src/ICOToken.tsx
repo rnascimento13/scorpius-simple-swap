@@ -14,7 +14,7 @@ import ProgressBar from "./components/progress-bar";
 import logo1 from "./assets/logo1.gif";
 
 interface Props {
-  crowdsaleAddress: string;
+  contractAddress: string;
 }
 
 declare global {
@@ -76,7 +76,7 @@ async function requestAccount() {
   throw new Error("Missing install Metamask. Please access https://metamask.io/ to install extension on your browser");
 }
 
-const ICOToken = ({ crowdsaleAddress }: Props) => {
+const ICOToken = ({ contractAddress }: Props) => {
   const { library, chainId, account } = useWeb3React();
   const [tokenAddress, setTokenAddress] = useState("");
   const [availableForSale, setAvailableForSale] = useState("0");
@@ -95,7 +95,7 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
     // logger.warn("fetchCrowdsaleTokenInfo");
     const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
     const contract = new ethers.Contract(
-      crowdsaleAddress,
+      contractAddress,
       TokenCrowdsaleArtifacts.abi,
       provider
     ) as TokenCrowdsale
@@ -169,7 +169,7 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
         return;
       }
       const txPrams = {
-        to: crowdsaleAddress,
+        to: contractAddress,
         value: ethers.BigNumber.from(parseUnits(String(Number(amount) / Number(price) / 100 ), 18)),
       };
       logger.warn({ txPrams });

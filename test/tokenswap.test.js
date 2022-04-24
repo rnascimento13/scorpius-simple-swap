@@ -27,7 +27,7 @@ let tokenADecimals;
 let tokenBDecimals;
 let owner;
 let user1;
-const swapAmount = 100.0000002;
+const swapAmount = 100;
 
 beforeEach(async () => {
   [owner, user1] = await ethers.getSigners();
@@ -62,9 +62,6 @@ beforeEach(async () => {
     expect(0).is.not.greaterThan(tokenADecimals);
     expect(0).is.not.greaterThan(tokenBDecimals);
   }
-
-  // expect(swapAmount.toString().split(String("."))[1]?.length || 0).is.not.greaterThan(tokenADecimals)
-  // expect(swapAmount.toString().split(String("."))[1]?.length || 0).is.not.greaterThan(tokenBDecimals)
 });
 
 describe("Balance", () => {
@@ -92,10 +89,20 @@ describe("Swap", () => {
     tokenA.transfer(user1.address, toWei(swapAmount, tokenADecimals));
     const tokenAOwnerOld = await tokenA.balanceOf(owner.address);
     const tokenAUser1Old = await tokenA.balanceOf(user1.address);
-    // console.log('TokenA owner:',fromWei(tokenAOwnerOld, tokenADecimals), 'user1:', fromWei(tokenAUser1Old, tokenADecimals))
+    console.log(
+      "TokenA owner:",
+      fromWei(tokenAOwnerOld, tokenADecimals),
+      "user1:",
+      fromWei(tokenAUser1Old, tokenADecimals)
+    );
     const tokenBOwnerOld = await tokenB.balanceOf(owner.address);
     const tokenBUser1Old = await tokenB.balanceOf(user1.address);
-    // console.log('TokenB owner:',fromWei(tokenBOwnerOld, tokenBDecimals), 'user1:', fromWei(tokenBUser1Old, tokenBDecimals))
+    console.log(
+      "TokenB owner:",
+      fromWei(tokenBOwnerOld, tokenBDecimals),
+      "user1:",
+      fromWei(tokenBUser1Old, tokenBDecimals)
+    );
 
     const TOKENA = await ethers.getContractFactory("TokenA");
     const tokenAUser1 = new ethers.Contract(tokenA.address, TOKENA.interface, user1);
@@ -107,10 +114,20 @@ describe("Swap", () => {
 
     const tokenAOwnerNew = await tokenA.balanceOf(owner.address);
     const tokenAUser1New = await tokenA.balanceOf(user1.address);
-    // console.log('TokenA owner:',fromWei(tokenAOwnerNew, tokenADecimals), 'user1:', fromWei(tokenAUser1New, tokenADecimals))
+    console.log(
+      "TokenA owner:",
+      fromWei(tokenAOwnerNew, tokenADecimals),
+      "user1:",
+      fromWei(tokenAUser1New, tokenADecimals)
+    );
     const tokenBOwnerNew = await tokenB.balanceOf(owner.address);
     const tokenBUser1New = await tokenB.balanceOf(user1.address);
-    // console.log('TokenB owner:',fromWei(tokenBOwnerNew, tokenADecimals), 'user1:', fromWei(tokenBUser1New, tokenADecimals))
+    console.log(
+      "TokenB owner:",
+      fromWei(tokenBOwnerNew, tokenADecimals),
+      "user1:",
+      fromWei(tokenBUser1New, tokenADecimals)
+    );
 
     // console.log(fromWei(tokenAOwnerOld, tokenADecimals))
     // console.log(fromWei(tokenBOwnerOld, tokenBDecimals))

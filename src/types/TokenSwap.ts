@@ -26,7 +26,8 @@ import type {
 
 export interface TokenSwapInterface extends ethers.utils.Interface {
   functions: {
-    "ratioIO()": FunctionFragment;
+    "ratioIn()": FunctionFragment;
+    "ratioOut()": FunctionFragment;
     "swap(uint256)": FunctionFragment;
     "tokenIn()": FunctionFragment;
     "tokenInSwapped()": FunctionFragment;
@@ -35,7 +36,8 @@ export interface TokenSwapInterface extends ethers.utils.Interface {
     "tokenWallet()": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "ratioIO", values?: undefined): string;
+  encodeFunctionData(functionFragment: "ratioIn", values?: undefined): string;
+  encodeFunctionData(functionFragment: "ratioOut", values?: undefined): string;
   encodeFunctionData(functionFragment: "swap", values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: "tokenIn", values?: undefined): string;
   encodeFunctionData(
@@ -52,7 +54,8 @@ export interface TokenSwapInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
 
-  decodeFunctionResult(functionFragment: "ratioIO", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ratioIn", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ratioOut", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "swap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tokenIn", data: BytesLike): Result;
   decodeFunctionResult(
@@ -110,7 +113,9 @@ export interface TokenSwap extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    ratioIO(overrides?: CallOverrides): Promise<[BigNumber]>;
+    ratioIn(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    ratioOut(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     swap(
       amountIn: BigNumberish,
@@ -128,7 +133,9 @@ export interface TokenSwap extends BaseContract {
     tokenWallet(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  ratioIO(overrides?: CallOverrides): Promise<BigNumber>;
+  ratioIn(overrides?: CallOverrides): Promise<BigNumber>;
+
+  ratioOut(overrides?: CallOverrides): Promise<BigNumber>;
 
   swap(
     amountIn: BigNumberish,
@@ -146,7 +153,9 @@ export interface TokenSwap extends BaseContract {
   tokenWallet(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    ratioIO(overrides?: CallOverrides): Promise<BigNumber>;
+    ratioIn(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ratioOut(overrides?: CallOverrides): Promise<BigNumber>;
 
     swap(amountIn: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -175,7 +184,9 @@ export interface TokenSwap extends BaseContract {
   };
 
   estimateGas: {
-    ratioIO(overrides?: CallOverrides): Promise<BigNumber>;
+    ratioIn(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ratioOut(overrides?: CallOverrides): Promise<BigNumber>;
 
     swap(
       amountIn: BigNumberish,
@@ -194,7 +205,9 @@ export interface TokenSwap extends BaseContract {
   };
 
   populateTransaction: {
-    ratioIO(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    ratioIn(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ratioOut(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     swap(
       amountIn: BigNumberish,

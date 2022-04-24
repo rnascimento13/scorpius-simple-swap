@@ -6,12 +6,12 @@ import { toast } from "react-hot-toast";
 import { useQuery } from "react-query";
 
 import TokenSwapArtifacts from "./artifacts/contracts/TokenSwap.sol/TokenSwap.json";
-import IERC20Artifacts from "./artifacts/contracts/TokenSwap.sol/IERC20.json";
+import IERC20Artifacts from "./artifacts/contracts/oz/IERC20.sol/IERC20.json";
 import logger from "./logger";
 import { TokenSwap } from "./types/TokenSwap";
 import { IERC20 } from "./types/IERC20";
 import ProgressBar from "./components/progress-bar";
-import logo1 from "./assets/logo1.jpg";
+import logo1 from "./assets/logo1.svg";
 
 interface Props {
   contractAddress: string;
@@ -30,37 +30,37 @@ const fromWei = (amount: BigNumberish, unit: BigNumberish | undefined): string =
 
 const providerUrl = import.meta.env.VITE_PROVIDER_URL;
 
-const TokenInfo = ({ tokenAddress, setDecimals, tokenBalance }: { tokenAddress: string , setDecimals: React.Dispatch<React.SetStateAction<any>>, tokenBalance:BigNumberish}) => {
-  const { library } = useWeb3React();
-  const fetchTokenInfo = async () => {
-    logger.warn("fetchTokenInfo");
-    const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
-    const tokenContract = new ethers.Contract(tokenAddress, IERC20Artifacts.abi, provider);
-    const name = await tokenContract.name();
-    const symbol = await tokenContract.symbol();
-    const decimals = await tokenContract.decimals();
-    logger.warn("token info", { name, symbol, decimals, tokenBalance });
+// const TokenInfo = ({ tokenAddress, setDecimals, tokenBalance }: { tokenAddress: string , setDecimals: React.Dispatch<React.SetStateAction<any>>, tokenBalance:BigNumberish}) => {
+//   const { library } = useWeb3React();
+//   const fetchTokenInfo = async () => {
+//     logger.warn("fetchTokenInfo");
+//     const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
+//     const tokenContract = new ethers.Contract(tokenAddress, IERC20Artifacts.abi, provider);
+//     const name = await tokenContract.name();
+//     const symbol = await tokenContract.symbol();
+//     const decimals = await tokenContract.decimals();
+//     logger.warn("token info", { name, symbol, decimals, tokenBalance });
     
-    setDecimals(decimals)
+//     setDecimals(decimals)
     
-    return { name, symbol, decimals, tokenBalance};
-  };
-  const { error, isLoading, data } = useQuery(["token-info", tokenAddress], fetchTokenInfo, {
-    enabled: tokenAddress !== "",
-  });
-  if (error) return <div>failed to load</div>;
-  if (isLoading) return <div>loading...</div>;
-  return (
-    <div>
-      <button className="btn">
-        {data?.name}
-        <div className="ml-2 badge">{data?.tokenBalance}</div>
-        <div className="ml-2 badge">{data?.symbol}</div>
-        <div className="ml-2 badge">{data?.decimals}</div>
-      </button>
-    </div>
-  );
-};
+//     return { name, symbol, decimals, tokenBalance};
+//   };
+//   const { error, isLoading, data } = useQuery(["token-info", tokenAddress], fetchTokenInfo, {
+//     enabled: tokenAddress !== "",
+//   });
+//   if (error) return <div>failed to load</div>;
+//   if (isLoading) return <div>loading...</div>;
+//   return (
+//     <div>
+//       <button className="btn">
+//         {data?.name}
+//         <div className="ml-2 badge">{data?.tokenBalance}</div>
+//         <div className="ml-2 badge">{data?.symbol}</div>
+//         <div className="ml-2 badge">{data?.decimals}</div>
+//       </button>
+//     </div>
+//   );
+// };
 
 async function requestAccount() {
   if (window.ethereum?.request) return window.ethereum.request({ method: "eth_requestAccounts" });
@@ -74,14 +74,20 @@ const SwapToken = ({ contractAddress }: Props) => {
   const [tokenOut, setTokenOut] = useState("")
   const [tokenInDecimals, setTokenInDecimals] = useState(undefined)
   const [tokenOutDecimals, setTokenOutDecimals] = useState(undefined)
+  const [tokenInName, setTokenInName] = useState("")
+  const [tokenOutName, setTokenOutName] = useState("")
+  const [tokenInSymbol, setTokenInSymbol] = useState("")
+  const [tokenOutSymbol, setTokenOutSymbol] = useState("")
+  const [tokenInAllowance, setTokenInAllowance] = useState<number | null>(null)
+  
   const [tokenWallet, setTokenWallet] = useState("")
   const [tokenInSwapped, setTokenInSwapped] = useState("0")
   const [tokenOutRemaining, setTokenOutRemaining] = useState("0")
   
   const [amount, setAmount] = useState(0);
-  const [balance, setBalance] = useState<number| null>();
-  const [balanceTokenIn, setBalanceTokenIn] = useState<number>(0);
-  const [balanceTokenOut, setBalanceTokenOut] = useState<number>(0);
+  const [balance, setBalance] = useState<number | null>(null);
+  const [balanceTokenIn, setBalanceTokenIn] = useState<number | null>(null);
+  const [balanceTokenOut, setBalanceTokenOut] = useState<number | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
@@ -90,22 +96,55 @@ const SwapToken = ({ contractAddress }: Props) => {
   const fetchContractInfo = async () => {
     logger.warn("fetchContractInfo");
     const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
-    const contract = new ethers.Contract(contractAddress, TokenSwapArtifacts.abi, provider);
-    logger.warn("fetchContractInfo2");
-    // contract.tokenIn().then(setTokenIn).catch(logger.error);
-    // contract.tokenOut().then(setTokenOut).catch(logger.error);
-    // contract.tokenWallet().then(setTokenWallet).catch(logger.error);
-    // contract.tokenInSwapped().then(setTokenInSwapped).catch(logger.error);
-    // contract.tokenOutRemaining().then(setTokenOutRemaining).catch(logger.error);
+    const contract = new ethers.Contract(contractAddress, TokenSwapArtifacts.abi, provider) as TokenSwap;
 
-    const _tokenIn =await contract.tokenIn()
+    const _tokenIn = await contract.tokenIn()
     setTokenIn(_tokenIn)
-    logger.warn("fetchContractInfo3");
-    setTokenOut(await contract.tokenOut())
-    setTokenWallet(await contract.tokenWallet())
-    setTokenInSwapped(await contract.tokenInSwapped())
-    // setTokenOutRemaining(await contract.tokenOutRemaining())
-    logger.warn(_tokenIn, 'tokenIn fetchContractInfo4')
+    const _tokenOut = await contract.tokenOut()
+    setTokenOut(_tokenOut)
+
+    const tokenInContract = new ethers.Contract(_tokenIn, IERC20Artifacts.abi, provider);
+    const _tokenInName = await tokenInContract.name();
+    setTokenInName(_tokenInName)
+    const _tokenInSymbol = await tokenInContract.symbol();
+    setTokenInSymbol(_tokenInSymbol)
+    const _tokenInDecimals = await tokenInContract.decimals();
+    setTokenInDecimals(_tokenInDecimals)
+
+    const tokenOutContract = new ethers.Contract(_tokenOut, IERC20Artifacts.abi, provider);
+    const _tokenOutName = await tokenOutContract.name();
+    setTokenOutName(_tokenOutName)
+    const _tokenOutSymbol = await tokenOutContract.symbol();
+    setTokenOutSymbol(_tokenOutSymbol)
+    const _tokenOutDecimals = await tokenOutContract.decimals();
+    setTokenOutDecimals(_tokenOutDecimals)
+
+    if (!!account) {
+      const _allowance = await tokenInContract.allowance(account, contractAddress)
+      setTokenInAllowance(Number(fromWei(_allowance, _tokenInDecimals)))
+      logger.warn('allowance', Number(fromWei(_allowance, _tokenInDecimals)))
+
+      const _balanceTokenIn = await tokenInContract.balanceOf(account)
+      setBalanceTokenIn(_balanceTokenIn)
+      logger.warn('balance tokenIn', Number(fromWei(_balanceTokenIn, _tokenInDecimals)))
+      // setBalanceTokenIn(Number(fromWei(_balanceTokenIn, _tokenInDecimals)))
+      // logger.warn('balance tokenIn', _balanceTokenIn)
+
+      const _balanceTokenOut = await tokenOutContract.balanceOf(account)
+      setBalanceTokenOut(_balanceTokenOut)
+      logger.warn('balance tokenOut', Number(fromWei(_balanceTokenOut, _tokenOutDecimals)))
+      // setBalanceTokenOut(Number(fromWei(_balanceTokenOut, _tokenOutDecimals)))
+      // logger.warn('balance tokenOut', _balanceTokenOut)
+
+
+    }
+
+    const _tokenWallet = await contract.tokenWallet()
+    setTokenWallet(_tokenWallet)
+    const _tokenInSwapped = await contract.tokenInSwapped()
+    setTokenInSwapped(fromWei(_tokenInSwapped, _tokenInDecimals))
+    const _tokenOutRemaining = await contract.tokenOutRemaining()
+    setTokenOutRemaining(fromWei(_tokenOutRemaining, _tokenOutDecimals))
 
     // contract.tokenInSwapped()
     //   .then((swapped) => setTokenInSwapped(BigNumber.from(swapped).toString()))
@@ -117,32 +156,28 @@ const SwapToken = ({ contractAddress }: Props) => {
   };
   useEffect(() => {
     try {
-      if (tokenIn?.length < 1) fetchContractInfo();
+      fetchContractInfo();
     } catch (error) {
       logger.error(error);
     }
-  }, [library]);
+  }, [library, account]);
 
   React.useEffect((): any => {
     if (!!account && !!library) {
-      logger.warn('useEfect balances')
+      logger.warn('connect and get balances')
       let stale = false;
 
-      if (tokenIn?.length > 1) {
-        const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
-        const tokenInContract = new ethers.Contract(tokenIn, IERC20Artifacts.abi, provider);
-        tokenInContract.balanceOf(account)
-          .then((tokenBalance: any) => { if (!stale) setBalanceTokenIn(tokenBalance); logger.warn(fromWei(tokenBalance,18))})
-          .catch(() => { if (!stale) setBalanceTokenIn(0); });
-      }
+      // const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
+      // const tokenInContract = new ethers.Contract(tokenIn, IERC20Artifacts.abi, provider);
+      // tokenInContract.balanceOf(account)
+      //   .then((tokenBalance: any) => { if (!stale) setBalanceTokenIn(tokenBalance);})
+      //   .catch(() => { if (!stale) setBalanceTokenIn(null); });
 
-      if (tokenOut?.length > 1) {
-        const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
-        const tokenOutContract = new ethers.Contract(tokenOut, IERC20Artifacts.abi, provider);
-        tokenOutContract.balanceOf(account)
-          .then((tokenBalance: any) => { if (!stale) setBalanceTokenOut(tokenBalance); logger.warn(fromWei(tokenBalance,18))})
-          .catch(() => { if (!stale) setBalanceTokenOut(0); });
-      }
+      // const tokenOutContract = new ethers.Contract(tokenOut, IERC20Artifacts.abi, provider);
+      // tokenOutContract.balanceOf(account)
+      //   .then((tokenBalance: any) => { if (!stale) setBalanceTokenOut(tokenBalance);})
+      //   .catch(() => { if (!stale) setBalanceTokenOut(null); });
+
 
       library.getBalance(account).then((balance: any) => {
         if (!stale) {
@@ -158,46 +193,33 @@ const SwapToken = ({ contractAddress }: Props) => {
 
       return () => {
         stale = true;
-        setBalance(undefined);
+        setBalance(null);
         setIsConnected(false);
       };
     }
-  }, [tokenIn, tokenOut, account, library, chainId]); // ensures refresh if referential identity of library doesn't change across chainIds
+  }, [account, library, chainId]); // ensures refresh if referential identity of library doesn't change across chainIds
 
   // buy token base on quantity
   const doSwap = async () => {
     const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
-    // const signer = provider.getSigner();
-
-    //    TODO
-    const contract = new ethers.Contract(contractAddress, TokenSwapArtifacts.abi, provider);
-    
-    // const tx = await contract.swap(toWei(amount, ));
-
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, TokenSwapArtifacts.abi, signer);
     try {
       if (!account) {
         await requestAccount();
         return;
       }
-      // const transaction = await signer.sendTransaction(txPrams);
-
-      // const txPrams = {
-      //   to: contractAddress,
-      //   value: ethers.BigNumber.from(parseUnits(String(Number(amount) / Number(price) / 100 ), 18)),
-      // };
-      // logger.warn({ txPrams });
-      // const transaction = await signer.sendTransaction(txPrams);
-      // toast.promise(transaction.wait(), {
-      //   loading: `Transaction submitted. Wait for confirmation...`,
-      //   success: <b>Transaction confirmed!</b>,
-      //   error: <b>Transaction failed!.</b>,
-      // });
-
-      // refetch total token after processing
-      //   transaction
-      //     .wait()
-      //     .then(() => fetchContractInfo())
-      //     .catch(logger.error);
+      if (balanceTokenIn) {
+        const tx = await contract.swap(balanceTokenIn);
+        toast.promise(tx.wait(), {
+          loading: `Transaction submitted. Wait for confirmation...`,
+          success: <b>Transaction confirmed!</b>,
+          error: <b>Transaction failed!.</b>,
+        });
+        tx.wait(2)
+          .then(() => fetchContractInfo())
+          .catch(logger.error);
+      }
       //   // console.log(receipt);
     } catch (error) {
       logger.error(error);
@@ -211,21 +233,56 @@ const SwapToken = ({ contractAddress }: Props) => {
     }
   };
 
+  const doApprove = async () => {
+    const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
+    const signer = provider.getSigner();
+    const tokenInContract = new ethers.Contract(tokenIn, IERC20Artifacts.abi, signer);
+    // logger.warn('doApprove')
+    try {
+      if (!account ) {
+        await requestAccount();
+        return;
+      }
+      if (balanceTokenIn) {
+        const tx = await tokenInContract.approve(contractAddress, balanceTokenIn)
+        toast.promise(tx.wait(), {
+          loading: `Approval submitted. Wait for confirmation...`,
+          success: <b>Approval confirmed!</b>,
+          error: <b>Approval failed!.</b>,
+        });
+        tx.wait(2)
+          .then(() => fetchContractInfo())
+          .catch(logger.error);
+      }
+
+    } catch (error) {
+      logger.error(error);
+    }
+  };
+
   React.useEffect((): any => {
-    logger.warn('warnings')
+    // logger.warn('warnings')
     let _warningMessage;
     if (balance == null) {
-      _warningMessage = "Please connect to BSC first";
+      _warningMessage = "Please connect to BSC Testnet first";
     } else if (balance == undefined) {
-      _warningMessage = "Please connect to BSC first";
+      _warningMessage = "Please connect to BSC Testnet first";
     } else if (chainId !== 97) {
       _warningMessage = "Please connect to Binance Smart Chain TestNet";
-    // } else if (Number(formatUnits(balance ?? 0, 18)) < 0.105 ) {
-    //   _warningMessage = "You need more funds, Minimum 0.1 BNB";
+
+    } else if (tokenInAllowance && balanceTokenIn && (tokenInAllowance < Number(fromWei(balanceTokenIn, tokenInDecimals)))) {
+      _warningMessage = "Need approve the token before swap";
+
+    } else if (Number(formatUnits(balanceTokenIn ?? 0, tokenInDecimals)) == 0 ) {
+      _warningMessage = "You dont have the token needed to swap";
+
+    } else if (Number(tokenOutRemaining) < Number(fromWei(balanceTokenIn||0, tokenInDecimals))) {
+      _warningMessage = "Sorry we only have "+tokenOutRemaining+" "+tokenOutSymbol+" remaining";
+
     // } else if (Number(formatUnits(balance ?? 0, 18)) < totalCost) {
     //   _warningMessage = "You do not have enough BNB";
-    // } else if (Number(formatUnits(balance ?? 0, 18)) > totalCost) {
-    //   _warningMessage = "";
+    } else if (Number(formatUnits(balanceTokenIn ?? 0, tokenInDecimals)) > 0 ) {
+      _warningMessage = "";
     } else {
       _warningMessage = "Error";
     }
@@ -235,7 +292,7 @@ const SwapToken = ({ contractAddress }: Props) => {
     else setDisabled(true);
     // console.log("change")
     // toast("Wow so easy!");
-  }, [balance, chainId]);
+  }, [tokenOutRemaining, balanceTokenIn, balanceTokenOut, balance, chainId]);
 
   return (
     <div className="relative py-3 sm:max-w-5xl sm:mx-auto">
@@ -261,7 +318,7 @@ const SwapToken = ({ contractAddress }: Props) => {
                 <label>Wrong Chain, please connect to the Binance Smart Chain Testnet.</label>
               )}
               {!isConnected && (
-                <label>Please connect to the BSC.</label>
+                <label>Please connect to the BSC Testnet.</label>
               )}
             </div>
           </div>
@@ -271,24 +328,56 @@ const SwapToken = ({ contractAddress }: Props) => {
       <div className="flex items-center w-full px-4 py-10 bg-cover card bg-base-200">
         <img className="stats py-5" style={{width: "480px"}} src={logo1} alt="Logo" />
         <h2 className="card-title py-10">Token Swap</h2>
-        {fromWei(balanceTokenIn, 18)}{fromWei(balanceTokenOut, 18)}
-        <div className="grid grid-cols-3 space-x-4 card">
-          <TokenInfo tokenAddress={tokenIn} setDecimals={setTokenInDecimals} tokenBalance={fromWei(balanceTokenIn, tokenInDecimals)}/>
+
+        <div className="grid grid-cols-3 card w-full">
+
+          {tokenIn.length > 0 && (
+            <div className="p-4 w-80">
+              <div className="p-8 bg-gray-500 rounded-2xl shadow-md">
+                <h2 className="text-2xl font-bold text-gray-800">{tokenInName}</h2>
+                  {!!balanceTokenIn && (
+                    <p className="text-gray-600">{fromWei(balanceTokenIn, tokenInDecimals)} {tokenInSymbol}</p>
+                  )}
+              </div>
+            </div>
+          )}
+          {!(tokenIn.length > 0) && (<div className="p-4 w-80"> </div>)}
+
+          {/* <TokenInfo tokenAddress={tokenIn} setDecimals={setTokenInDecimals} tokenBalance={fromWei(balanceTokenIn, tokenInDecimals)}/> */}
           <div>
-            <div className="justify-center card-actions">
+            <div className="justify-center card-actions p-4 w-80">
+              {((tokenInAllowance || -1) < (Number(fromWei(balanceTokenIn || 0, tokenInDecimals))) ) && (
+                <button onClick={doApprove} disabled={disabled} type="button" className="btn btn-outline btn-accent">
+                  Approve Token
+                </button>
+              )}
               <button onClick={doSwap} disabled={disabled} type="button" className="btn btn-outline btn-accent">
                 Swap Now
               </button>
+              <div style={{color: "red"}}>{warningMessage}</div>
+
             </div>
-            <div style={{color: "red"}}>{warningMessage}</div>
           </div>
-          <TokenInfo tokenAddress={tokenOut} setDecimals={setTokenOutDecimals} tokenBalance={fromWei(balanceTokenOut, tokenOutDecimals)}/>
+
+          {tokenOut.length > 0 && (
+            <div className="p-4 w-80">
+              <div className="p-8 bg-gray-500 rounded-2xl shadow-md">
+                <h2 className="text-2xl font-bold text-gray-800">{tokenOutName}</h2>
+                  {!!balanceTokenOut && (
+                    <p className="text-gray-600">{fromWei(balanceTokenOut, tokenOutDecimals)} {tokenOutSymbol}</p>
+                  )}
+              </div>
+            </div>
+          )}
+          {!(tokenOut.length > 0) && (<div className="p-4 w-80"> </div>)}
+          {/* <TokenInfo tokenAddress={tokenOut} setDecimals={setTokenOutDecimals} tokenBalance={fromWei(balanceTokenOut, tokenOutDecimals)}/> */}
         </div>
+        {/* {tokenInAllowance} {fromWei(balanceTokenIn||0,tokenInDecimals)} */}
         <div className="divider"></div>
         <div className="items-center justify-center max-w-2xl px-4 py-4 mx-auto text-xl border-orange-500 lg:flex md:flex">
           <div className="p-2 font-semibold">
             <a
-              href={`https://bscscan.com/address/${tokenOut}`}
+              href={`https://testnet.bscscan.com/address/${tokenOut}`}
               target="_blank"
               className="px-4 py-1 ml-2 bg-orange-500 rounded-full shadow focus:outline-none"
               rel="noreferrer"

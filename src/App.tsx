@@ -6,10 +6,11 @@ import { ReactQueryDevtools } from "react-query/devtools";
 
 import "./App.css";
 import ICOToken from "./ICOToken";
+import SwapToken from "./SwapToken";
 import Demo from "./components/Demo";
 import { getLibrary } from "./components/Demo";
 
-const crowdsaleAddress = import.meta.env.VITE_CROWDSALE_ADDRESS;
+const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
 const queryClient = new QueryClient();
 function App() {
@@ -18,7 +19,8 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <div className="App">
           <Demo />
-          <ICOToken crowdsaleAddress={crowdsaleAddress} />
+          {/* <ICOToken contractAddress={contractAddress} /> */}
+          <SwapToken contractAddress={contractAddress} />
 
           <footer className="p-10 footer bg-base-200 text-base-content">
             {/* <div>
