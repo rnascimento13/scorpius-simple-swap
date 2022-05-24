@@ -136,7 +136,6 @@ const SwapToken = ({ contractAddress }: Props) => {
       // setBalanceTokenOut(Number(fromWei(_balanceTokenOut, _tokenOutDecimals)))
       // logger.warn('balance tokenOut', _balanceTokenOut)
 
-
     }
 
     const _tokenWallet = await contract.tokenWallet()
@@ -146,13 +145,6 @@ const SwapToken = ({ contractAddress }: Props) => {
     const _tokenOutRemaining = await contract.tokenOutRemaining()
     setTokenOutRemaining(fromWei(_tokenOutRemaining, _tokenOutDecimals))
 
-    // contract.tokenInSwapped()
-    //   .then((swapped) => setTokenInSwapped(BigNumber.from(swapped).toString()))
-    //   .catch(logger.error);
-    // contract.remainingTokens()
-    //   .then((remaining) => setTokenOutRemaining(BigNumber.from(remaining).toString()))
-    //   .catch(logger.error);
-          // .then((rate) => setPrice(formatUnits(rate, 9)))
   };
   useEffect(() => {
     try {
@@ -166,19 +158,6 @@ const SwapToken = ({ contractAddress }: Props) => {
     if (!!account && !!library) {
       logger.warn('connect and get balances')
       let stale = false;
-
-      // const provider = library || new ethers.providers.Web3Provider(window.ethereum || providerUrl);
-      // const tokenInContract = new ethers.Contract(tokenIn, IERC20Artifacts.abi, provider);
-      // tokenInContract.balanceOf(account)
-      //   .then((tokenBalance: any) => { if (!stale) setBalanceTokenIn(tokenBalance);})
-      //   .catch(() => { if (!stale) setBalanceTokenIn(null); });
-
-      // const tokenOutContract = new ethers.Contract(tokenOut, IERC20Artifacts.abi, provider);
-      // tokenOutContract.balanceOf(account)
-      //   .then((tokenBalance: any) => { if (!stale) setBalanceTokenOut(tokenBalance);})
-      //   .catch(() => { if (!stale) setBalanceTokenOut(null); });
-
-
       library.getBalance(account).then((balance: any) => {
         if (!stale) {
           setBalance(balance);
@@ -254,7 +233,6 @@ const SwapToken = ({ contractAddress }: Props) => {
           .then(() => fetchContractInfo())
           .catch(logger.error);
       }
-
     } catch (error) {
       logger.error(error);
     }
@@ -269,16 +247,12 @@ const SwapToken = ({ contractAddress }: Props) => {
       _warningMessage = "Please connect to BSC Testnet first";
     } else if (chainId !== 97) {
       _warningMessage = "Please connect to Binance Smart Chain TestNet";
-
     } else if (tokenInAllowance && balanceTokenIn && (tokenInAllowance < Number(fromWei(balanceTokenIn, tokenInDecimals)))) {
       _warningMessage = "Need approve the token before swap";
-
     } else if (Number(formatUnits(balanceTokenIn ?? 0, tokenInDecimals)) == 0 ) {
       _warningMessage = "You dont have the token needed to swap";
-
     } else if (Number(tokenOutRemaining) < Number(fromWei(balanceTokenIn||0, tokenInDecimals))) {
       _warningMessage = "Sorry we only have "+tokenOutRemaining+" "+tokenOutSymbol+" remaining";
-
     // } else if (Number(formatUnits(balance ?? 0, 18)) < totalCost) {
     //   _warningMessage = "You do not have enough BNB";
     } else if (Number(formatUnits(balanceTokenIn ?? 0, tokenInDecimals)) > 0 ) {
@@ -343,7 +317,6 @@ const SwapToken = ({ contractAddress }: Props) => {
           )}
           {!(tokenIn.length > 0) && (<div className="p-4 w-80"> </div>)}
 
-          {/* <TokenInfo tokenAddress={tokenIn} setDecimals={setTokenInDecimals} tokenBalance={fromWei(balanceTokenIn, tokenInDecimals)}/> */}
           <div>
             <div className="justify-center card-actions p-4 w-80">
               {((tokenInAllowance || -1) < (Number(fromWei(balanceTokenIn || 0, tokenInDecimals))) ) && (
@@ -370,9 +343,7 @@ const SwapToken = ({ contractAddress }: Props) => {
             </div>
           )}
           {!(tokenOut.length > 0) && (<div className="p-4 w-80"> </div>)}
-          {/* <TokenInfo tokenAddress={tokenOut} setDecimals={setTokenOutDecimals} tokenBalance={fromWei(balanceTokenOut, tokenOutDecimals)}/> */}
         </div>
-        {/* {tokenInAllowance} {fromWei(balanceTokenIn||0,tokenInDecimals)} */}
         <div className="divider"></div>
         <div className="items-center justify-center max-w-2xl px-4 py-4 mx-auto text-xl border-orange-500 lg:flex md:flex">
           <div className="p-2 font-semibold">
